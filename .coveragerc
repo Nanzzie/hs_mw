@@ -1,0 +1,5 @@
+[run]
+source = src
+
+[report]
+omit = src/app/migrations/*,src/base/settings/*,*__init__*,*admin*

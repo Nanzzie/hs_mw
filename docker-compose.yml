@@ -1,0 +1,67 @@
+#This tells Docker how to run our Docker container.
+
+# most recent version of Compose which is “3”
+version: "3"
+
+services:
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    container_name: fish_db
+
+    # These must be matching with env var DATABASE_URL in Dockerfile
+    environment:
+      - POSTGRES_DB=fish
+      - POSTGRES_USER=fish
+      - POSTGRES_PASSWORD=123
+
+  redis:
+    image: "redis:alpine"
+    container_name: fish_redis
+
+  web:
+    build: .
+    stdin_open: true
+    tty: true
+    container_name: fish_web
+    ports:
+      - "8000:8000"
+      - 5678:5678
+    links:
+      - db
+      - redis
+    depends_on:
+      - db
+      - redis
+
+  # celery:
+  #   build: .
+  #   container_name: fish_celery
+  #   command: celery
+  #   volumes:
+  #     - "./src:/app/src"
+  #   depends_on:
+  #     - db
+  #     - redis
+
+  # celery-beat:
+  #   build: .
+  #   container_name: fish_celery_beat
+  #   command: celery-beat
+  #   volumes:
+  #     - "./src:/app/src"
+  #   depends_on:
+  #     - celery
+  # TODO: removed to save memory.. add later
+  # celery-flower:
+  #   build: .
+  #   container_name: fish_celery_flower
+  #   command: celery-flower
+  #   volumes:
+  #     - "./:/app/"
+  #   ports:
+  #     - "5050:5050"
+  #   depends_on:
+  #     - celery
+  #     - celery-beat
